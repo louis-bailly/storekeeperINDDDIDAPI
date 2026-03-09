@@ -30,25 +30,34 @@ async function getProductByRef(req, res) {
                 message: 'Erreur de connexion à la base de données'
             });
         }
-        const ref = req.query.ref;
+        // Le driver ODBC IBM i ne supporte pas le binding ? sur colonnes CCSID 65535
+        // → interpolation directe avec nettoyage strict (whitelist alphanumérique)
+        const ref     = (req.query.ref     ?? '').trim().replace(/[^A-Z0-9a-z\-\.\/# ]/g, '');
+        const atelier = (req.query.atelier ?? '').trim().replace(/[^A-Z0-9a-z\-\.\/# ]/g, '');
+
+        console.log('ref:', ref, '| atelier:', atelier);
+
         if (!ref) {
             return res.status(400).json({
                 success: false,
                 message: 'Le paramètre ref est requis'
             });
         }
+
+        const whereAtelier = atelier ? `AND s.LLOCN = '${atelier}'` : '';
         const query = `
-            SELECT coc.ITNBR, rva.ITDSC, coc.UST305, rva.UNMSR, s.LQNTY, s.LLOCN
+            SELECT coc.ITNBR, rva.ITDSC, coc.UST305, rva.UNMSR, s.LQNTY, s.LLOCN, i.MULQ 
             FROM INTE3FIC.ITMCOC coc
-                     JOIN AMFLIB3.ITMRVA rva ON rva.ITNBR = coc.ITNBR
-                     JOIN AMFLIB3.SLQNTY s ON s.ITNBR = rva.ITNBR
-            WHERE coc.STID = '02' AND coc.ITNBR = ?
-                LIMIT 1
+            JOIN AMFLIB3.ITMRVA rva ON rva.ITNBR = coc.ITNBR
+            JOIN AMFLIB3.SLQNTY s ON s.ITNBR = rva.ITNBR
+            FULL JOIN AMFLIB3.ITMPLN i ON i.itnb = rva.ITNBR
+            WHERE coc.STID = '02' AND coc.ITNBR = '${ref}' ${whereAtelier} AND s.LQNTY > 0
+            LIMIT 1
         `;
 
-        const result = await pool.query(query, [ref]);
+        const result = await pool.query(query);
         // Exécuter la requête
-        console.log(result);
+        console.log("resultat=" ,result);
         // Normalisation : le driver ODBC AS400 peut retourner certains champs
         // sous forme de Buffer ou d'objet — on les convertit en types primitifs
         const mapped = result.map(row => ({
@@ -57,7 +66,8 @@ async function getProductByRef(req, res) {
             UST305: row.UST305?.trim(),
             UNMSR: decodeEBCDIC(row.UNMSR),
             LQNTY: row.LQNTY,
-            LLOCN: decodeEBCDIC(row.LLOCN)
+            LLOCN: decodeEBCDIC(row.LLOCN),
+            MULQ: row.MULQ,
         }));
         console.log(mapped);
 
