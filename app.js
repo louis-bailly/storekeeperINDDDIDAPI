@@ -30,6 +30,7 @@ app.get('/', (req, res) => {
     });
 });
 
+app.use('/oauth', loginRoutes);
 app.use('/api/v1/auth', loginRoutes);
 app.use('/api/v1/example', exampleRoutes);
 app.use('/api/v1/wareHouse', wareHouseRoutes);
