@@ -17,6 +17,7 @@ const loginRoutes = require('./routes/Login/LoginRoute');
 const exampleRoutes = require('./routes/ExampleRoute');
 const wareHouseRoutes = require('./routes/WareHouse/WareHouseRoute');
 const productRoutes = require('./routes/Product/ProductRoute');
+const transferRoutes = require('./routes/Transfer/TransferRoute');
 
 app.get('/', (req, res) => {
     res.json({
@@ -35,6 +36,7 @@ app.use('/api/v1/auth', loginRoutes);
 app.use('/api/v1/example', exampleRoutes);
 app.use('/api/v1/wareHouse', wareHouseRoutes);
 app.use('/api/v1/products', productRoutes);
+app.use('/api/v1/stock', transferRoutes);
 
 // Initialiser la DB puis démarrer le serveur
 initDB().then(() => {

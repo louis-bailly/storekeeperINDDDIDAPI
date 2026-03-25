@@ -10,6 +10,7 @@ const EBCDIC_037 = {
 };
 
 function decodeEBCDIC(buffer) {
+    if (buffer == null) return '';
     const bytes = new Uint8Array(buffer);
     let out = "";
 
@@ -59,16 +60,17 @@ async function getProductByRef(req, res) {
         const result = await pool.query(query);
         // Exécuter la requête
         console.log("resultat=" ,result);
+        if (result.length > 0) console.log('[UST305 raw]', result[0].UST305, typeof result[0].UST305);
         // Normalisation : le driver ODBC AS400 peut retourner certains champs
         // sous forme de Buffer ou d'objet — on les convertit en types primitifs
         const mapped = result.map(row => ({
-            ITNBR: row.ITNBR?.trim(),
-            ITDSC: decodeEBCDIC(row.ITDSC),
-            UST305: row.UST305?.trim(),
-            UNMSR: decodeEBCDIC(row.UNMSR),
-            LQNTY: row.LQNTY,
-            LLOCN: decodeEBCDIC(row.LLOCN),
-            MULQ: row.MULQ,
+            ITNBR:  row.ITNBR?.trim(),
+            ITDSC:  decodeEBCDIC(row.ITDSC),
+            UST305: decodeEBCDIC(row.UST305),
+            UNMSR:  decodeEBCDIC(row.UNMSR),
+            LQNTY:  row.LQNTY,
+            LLOCN:  decodeEBCDIC(row.LLOCN),
+            MULQ:   row.MULQ,
         }));
         console.log(mapped);
 
