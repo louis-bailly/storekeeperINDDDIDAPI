@@ -36,7 +36,7 @@ function getIBMTime() {
  * Le numéro de transaction (TRNNO) est obtenu dynamiquement via CLPZNXTRN.PGM.
  *
  * Body attendu :
- *   itnbr  {string}  Numéro article            (ex. 'ART001')
+ *   itnbr  {string}  Numéro article            (ex. 'Y317052030P')
  *   llocn  {string}  Emplacement source         (ex. 'A01-01')
  *   ust305 {string}  Emplacement cible          (ex. 'B02-03')
  *   lqnty  {number}  Quantité UG à transférer   (ex. 12.5)
@@ -99,8 +99,8 @@ async function transferStock(req, res) {
                  GRNI,  ENSTN, TTIME, WSID,  REFNO)
             VALUES
                 ('Y', 'N', 'I', ${badge}, 'N', ' ',
-                 ${fdate}, ' ', '${esc(itnbr, 15)}', ' ', '${esc(house, 3)}', '${esc(llocn, 7)}',
-                 '${esc(house, 3)}', '${esc(ust305, 7)}', '0', 1, 2, 1,
+                 ${fdate}, ' ', '${esc(itnbr, 15)}', ' ', '${esc(house, 3)}', '${esc(ust305, 7)}',
+                 '${esc(house, 3)}', '${esc(llocn, 7)}', '0', 1, 2, 1,
                  ${fdate}, 'TW', ${trnno}, ${qty}, '${esc(um, 2)}', 3,
                  '0', 'A', ${ttime}, 'STKAPP', ' ')
         `;
