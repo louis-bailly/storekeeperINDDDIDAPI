@@ -3,18 +3,24 @@ const router = express.Router();
 const LoginController = require('../../controllers/Login/LoginController');
 
 /**
- * @route POST /api/v1/auth/login
- * @desc Authentification par badge
+ * @route POST /oauth/token
+ * @desc Authentification (grant_type=password) ou refresh (grant_type=refresh_token)
  * @access Public
  */
-router.post('/login', LoginController.login);
+router.post('/token', LoginController.token);
+
+/**
+ * @route POST /oauth/revoke
+ * @desc Révoquer un refresh token (logout)
+ * @access Public
+ */
+router.post('/revoke', LoginController.revoke);
 
 /**
  * @route GET /api/v1/auth/verify
- * @desc Vérifier le token JWT
+ * @desc Vérifier un access token (conservé pour compatibilité)
  * @access Public
  */
 router.get('/verify', LoginController.verify);
 
 module.exports = router;
-

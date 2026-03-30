@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'votre-secret-jwt-super-securise-a-changer';
+// JWT_EXPIRES_IN est géré dans LoginController, pas ici (le middleware ne génère pas de tokens)
 
 /**
  * Middleware pour protéger les routes
