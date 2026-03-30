@@ -72,7 +72,7 @@ stages:
                 - script: |
                     echo ===== PM2 =====
                     cd /d "$(DEPLOY_PATH)"
-                    "C:\Program Files\nodejs\pm2.cmd" delete storekeeper-api 2>nul || echo process not running
+                    "C:\Program Files\nodejs\pm2.cmd" delete storekeeper-api & echo delete done
                     "C:\Program Files\nodejs\pm2.cmd" start app.js --name storekeeper-api
                     "C:\Program Files\nodejs\pm2.cmd" save
                     echo ===== DEPLOY DONE =====
