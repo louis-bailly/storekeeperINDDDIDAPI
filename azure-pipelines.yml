@@ -67,7 +67,7 @@ stages:
                     REM Safe stop (no failure if not exists)
                     pm2 describe storekeeper-api >nul 2>&1 && pm2 stop storekeeper-api
                     
-                    npm ci --omit=dev
+                    npm install --omit=dev
                     
                     REM Restart or start safely
                     pm2 describe storekeeper-api >nul 2>&1 && pm2 restart storekeeper-api || pm2 start app.js --name storekeeper-api
