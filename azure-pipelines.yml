@@ -59,22 +59,26 @@ stages:
               steps:
                 - script: |
                     echo ===== DEPLOY START =====
-
                     git config --global --add safe.directory $(DEPLOY_PATH)
                     cd $(DEPLOY_PATH)
-
                     echo ===== GIT SYNC =====
                     git -c http.extraHeader="Authorization: Basic $(GIT_PAT_B64)" fetch origin main
                     git reset --hard origin/main
                     git clean -fd
-
                     echo ===== INSTALL =====
                     npm install --omit=dev
+                    echo ===== INSTALL DONE =====
+                  displayName: 'Deploy — git sync + npm install'
 
+                - script: |
                     echo ===== PM2 =====
-                    "C:\Program Files\nodejs\pm2.cmd" describe storekeeper-api >nul 2>&1 && "C:\Program Files\nodejs\pm2.cmd" reload storekeeper-api || "C:\Program Files\nodejs\pm2.cmd" start app.js --name storekeeper-api
-
+                    cd $(DEPLOY_PATH)
+                    "C:\Program Files\nodejs\pm2.cmd" describe storekeeper-api >nul 2>&1
+                    IF %ERRORLEVEL% EQU 0 (
+                      "C:\Program Files\nodejs\pm2.cmd" reload storekeeper-api
+                    ) ELSE (
+                      "C:\Program Files\nodejs\pm2.cmd" start app.js --name storekeeper-api
+                    )
                     "C:\Program Files\nodejs\pm2.cmd" save
-
                     echo ===== DEPLOY DONE =====
-                  displayName: 'Deploy — clean + pm2 reload'
+                  displayName: 'Deploy — pm2 reload'
