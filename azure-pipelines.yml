@@ -74,13 +74,32 @@ stages:
                     echo ===== PM2 =====
                     cd $(DEPLOY_PATH)
                     
-                    "C:\Program Files\nodejs\pm2.cmd" describe storekeeper-api >nul 2>&1
-                    
-                    IF %ERRORLEVEL% EQU 0 (
-                    "C:\Program Files\nodejs\pm2.cmd" delete storekeeper-api
+                    REM Vérifie que le dossier existe
+                    IF NOT EXIST "$(DEPLOY_PATH)" (
+                      echo ERROR: DEPLOY_PATH not found
+                      exit /b 1
                     )
                     
-                    "C:\Program Files\nodejs\pm2.cmd" start app.js --name storekeeper-api
+                    REM Vérifie que le fichier existe
+                      IF NOT EXIST app.js (
+                        echo ERROR: app.js not found in %CD%
+                        dir
+                        exit /b 1
+                    )
+                    
+                    REM Restart si existe, sinon start
+                    "C:\Program Files\nodejs\pm2.cmd" restart storekeeper-api >nul 2>&1
+                    
+                    IF %ERRORLEVEL% NEQ 0 (
+                      echo Process not found, starting new one...
+                      "C:\Program Files\nodejs\pm2.cmd" start app.js --name storekeeper-api
+                      IF %ERRORLEVEL% NEQ 0 (
+                        echo ERROR: PM2 start failed
+                        exit /b 1
+                      )
+                    )
+                    
+                    REM Save config
                     "C:\Program Files\nodejs\pm2.cmd" save
                     
                     echo ===== DEPLOY DONE =====
