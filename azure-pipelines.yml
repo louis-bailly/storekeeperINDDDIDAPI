@@ -72,10 +72,7 @@ stages:
                 - powershell: |
                     Write-Host "===== PM2 ====="
                     Set-Location "$(DEPLOY_PATH)"
-                    & "C:\Program Files\nodejs\pm2.cmd" delete storekeeper-api
-                    Write-Host "delete exit: $LASTEXITCODE (ignored)"
-                    & "C:\Program Files\nodejs\pm2.cmd" start app.js --name storekeeper-api
-                    if ($LASTEXITCODE -ne 0) { exit 1 }
-                    & "C:\Program Files\nodejs\pm2.cmd" save
+                    sc stop "StoreKeeper API"
+                    sc start "StoreKeeper API"
                     Write-Host "===== DEPLOY DONE ====="
                   displayName: 'Deploy — pm2 restart'
