@@ -62,7 +62,7 @@ stages:
                     git config --global --add safe.directory $(DEPLOY_PATH)
                     cd $(DEPLOY_PATH)
                     git -c http.extraHeader="Authorization: Basic $(GIT_PAT_B64)" pull origin main
-                    pm2 stop storekeeper-api || echo "App not running, skipping stop"
+                    pm2 describe storekeeper-api >nul 2>&1 && pm2 stop storekeeper-api || echo "App not running"
                     npm ci --omit=dev
                     pm2 describe storekeeper-api >nul 2>&1 && pm2 restart storekeeper-api || pm2 start app.js --name storekeeper-api
                     pm2 save
