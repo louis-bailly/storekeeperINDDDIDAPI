@@ -69,11 +69,13 @@ stages:
                     echo ===== INSTALL DONE =====
                   displayName: 'Deploy — git sync + npm install'
 
-                - script: |
-                    echo ===== PM2 =====
-                    cd /d "$(DEPLOY_PATH)"
-                    "C:\Program Files\nodejs\pm2.cmd" delete storekeeper-api & echo delete done
-                    "C:\Program Files\nodejs\pm2.cmd" start app.js --name storekeeper-api
-                    "C:\Program Files\nodejs\pm2.cmd" save
-                    echo ===== DEPLOY DONE =====
+                - powershell: |
+                    Write-Host "===== PM2 ====="
+                    Set-Location "$(DEPLOY_PATH)"
+                    & "C:\Program Files\nodejs\pm2.cmd" delete storekeeper-api
+                    Write-Host "delete exit: $LASTEXITCODE (ignored)"
+                    & "C:\Program Files\nodejs\pm2.cmd" start app.js --name storekeeper-api
+                    if ($LASTEXITCODE -ne 0) { exit 1 }
+                    & "C:\Program Files\nodejs\pm2.cmd" save
+                    Write-Host "===== DEPLOY DONE ====="
                   displayName: 'Deploy — pm2 restart'
