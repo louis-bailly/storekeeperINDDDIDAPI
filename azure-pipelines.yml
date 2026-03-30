@@ -9,7 +9,7 @@ variables:
 
 stages:
   # ─────────────────────────────────────────────
-  # Stage 1 : CI  (lint + test + audit)
+  # Stage 1 : CI
   # ─────────────────────────────────────────────
   - stage: CI
     displayName: 'CI — Lint, Test, Audit'
@@ -39,10 +39,9 @@ stages:
           - script: npm audit --audit-level=high
             workingDirectory: '$(Build.SourcesDirectory)'
             displayName: 'Audit sécurité (bloquant sur high/critical)'
-            continueOnError: false
 
   # ─────────────────────────────────────────────
-  # Stage 2 : Deploy (uniquement sur main)
+  # Stage 2 : Deploy
   # ─────────────────────────────────────────────
   - stage: Deploy
     displayName: 'Deploy — Agent self-hosted'
@@ -59,20 +58,23 @@ stages:
             deploy:
               steps:
                 - script: |
+                    echo ===== DEPLOY START =====
+
                     git config --global --add safe.directory $(DEPLOY_PATH)
                     cd $(DEPLOY_PATH)
-                    
-                    git -c http.extraHeader="Authorization: Basic $(GIT_PAT_B64)" pull origin main
-                    
-                    REM Safe stop (no failure if not exists)
-                    pm2 describe storekeeper-api >nul 2>&1 && pm2 stop storekeeper-api
-                    
+
+                    echo ===== GIT SYNC =====
+                    git -c http.extraHeader="Authorization: Basic $(GIT_PAT_B64)" fetch origin main
+                    git reset --hard origin/main
+                    git clean -fd
+
+                    echo ===== INSTALL =====
                     npm install --omit=dev
-                    
-                    REM Restart or start safely
-                    pm2 describe storekeeper-api >nul 2>&1 && pm2 restart storekeeper-api || pm2 start app.js --name storekeeper-api
-                    
+
+                    echo ===== PM2 =====
+                    pm2 describe storekeeper-api >nul 2>&1 && pm2 reload storekeeper-api || pm2 start app.js --name storekeeper-api
+
                     pm2 save
-                    
-                    echo "Déploiement terminé"
-                  displayName: 'Deploy — git pull + pm2 restart'
+
+                    echo ===== DEPLOY DONE =====
+                  displayName: 'Deploy — clean + pm2 reload'
