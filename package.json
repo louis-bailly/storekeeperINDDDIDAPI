@@ -16,12 +16,16 @@
     "dotenv": "^17.2.4",
     "express": "^5.2.1",
     "iconv-lite": "^0.7.2",
-    "itoolkit": "^1.0.2",
+    "itoolkit": "^1.0.0",
     "jsonwebtoken": "^9.0.3",
-    "odbc": "^2.4.9"
+    "odbc": "^2.3.6"
   },
   "devDependencies": {
     "jest": "^29.7.0",
     "nodemon": "^3.1.11"
+  },
+  "overrides": {
+    "tar": "^7.5.11",
+    "fast-xml-parser": "^5.5.7"
   }
 }
