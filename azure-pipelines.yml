@@ -58,10 +58,9 @@ stages:
             deploy:
               steps:
                 - script: |
-                    echo ===== DEPLOY START =====
-                    git config --global --add safe.directory $(DEPLOY_PATH)
-                    cd $(DEPLOY_PATH)
                     echo ===== GIT SYNC =====
+                    git config --global --add safe.directory $(DEPLOY_PATH)
+                    cd /d "$(DEPLOY_PATH)"
                     git -c http.extraHeader="Authorization: Basic $(GIT_PAT_B64)" fetch origin main
                     git reset --hard origin/main
                     git clean -fd
@@ -72,35 +71,9 @@ stages:
 
                 - script: |
                     echo ===== PM2 =====
-                    cd $(DEPLOY_PATH)
-                    
-                    REM Vérifie que le dossier existe
-                    IF NOT EXIST "$(DEPLOY_PATH)" (
-                      echo ERROR: DEPLOY_PATH not found
-                      exit /b 1
-                    )
-                    
-                    REM Vérifie que le fichier existe
-                      IF NOT EXIST app.js (
-                        echo ERROR: app.js not found in %CD%
-                        dir
-                        exit /b 1
-                    )
-                    
-                    REM Restart si existe, sinon start
-                    "C:\Program Files\nodejs\pm2.cmd" restart storekeeper-api >nul 2>&1
-                    
-                    IF %ERRORLEVEL% NEQ 0 (
-                      echo Process not found, starting new one...
-                      "C:\Program Files\nodejs\pm2.cmd" start app.js --name storekeeper-api
-                      IF %ERRORLEVEL% NEQ 0 (
-                        echo ERROR: PM2 start failed
-                        exit /b 1
-                      )
-                    )
-                    
-                    REM Save config
+                    cd /d "$(DEPLOY_PATH)"
+                    "C:\Program Files\nodejs\pm2.cmd" delete storekeeper-api 2>nul || echo process not running
+                    "C:\Program Files\nodejs\pm2.cmd" start app.js --name storekeeper-api
                     "C:\Program Files\nodejs\pm2.cmd" save
-                    
                     echo ===== DEPLOY DONE =====
-                  displayName: 'Deploy — pm2 reload'
+                  displayName: 'Deploy — pm2 restart'
