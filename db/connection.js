@@ -5,6 +5,10 @@ require('dotenv').config();
 let pool;
 
 async function initDB() {
+    if (!process.env.DB_HOST) {
+        console.warn('DB_HOST absent — connexion DB2 ignorée (mode CI/test)');
+        return;
+    }
     try {
         const connectionString = `DRIVER={IBM i Access ODBC Driver};SYSTEM=${process.env.DB_HOST};CCSID=1208;UID=${process.env.DB_USER};PWD=${process.env.DB_PASSWORD}`;
         pool = await odbc.pool(connectionString);

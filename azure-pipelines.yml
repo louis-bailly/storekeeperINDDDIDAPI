@@ -72,9 +72,9 @@ stages:
                     npm install --omit=dev
 
                     echo ===== PM2 =====
-                    pm2 describe storekeeper-api >nul 2>&1 && pm2 reload storekeeper-api || pm2 start app.js --name storekeeper-api
+                    "C:\Program Files\nodejs\pm2.cmd" describe storekeeper-api >nul 2>&1 && "C:\Program Files\nodejs\pm2.cmd" reload storekeeper-api || "C:\Program Files\nodejs\pm2.cmd" start app.js --name storekeeper-api
 
-                    pm2 save
+                    "C:\Program Files\nodejs\pm2.cmd" save
 
                     echo ===== DEPLOY DONE =====
                   displayName: 'Deploy — clean + pm2 reload'

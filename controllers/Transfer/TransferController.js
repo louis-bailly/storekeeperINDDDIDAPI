@@ -162,7 +162,7 @@ async function pullListRequest(req, res) {
         // Lecture du message résultat dans AMFLIB3.TSKMSG
         // Équivalent du getPLRequestMsg(token) Java
         const rows    = await pool.query(
-            'SELECT TSKMS FROM AMFLIB3.TSKMSG WHERE TSKID = ?',
+            `SELECT CAST(CAST(TSKMS AS CHAR(100) CCSID 37) AS VARCHAR(100) CCSID 1208) AS TSKMS FROM AMFLIB3.TSKMSG WHERE TSKID = ?`,
             [token]
         );
         const message = rows?.[0]?.TSKMS?.trim() ?? 'Planifié';

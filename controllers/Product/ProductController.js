@@ -47,13 +47,13 @@ async function getProductByRef(req, res) {
 
         const whereAtelier = atelier ? `AND s.LLOCN = '${atelier}'` : '';
         const query = `
-            SELECT coc.ITNBR, rva.ITDSC, coc.UST305, rva.UNMSR, s.LQNTY, s.LLOCN, i.MULQ 
+            SELECT coc.ITNBR, CAST(CAST(rva.ITDSC AS CHAR(30) CCSID 37) AS VARCHAR(30) CCSID 1208) AS ITDSC, coc.UST305, CAST(CAST(rva.UNMSR AS CHAR(2) CCSID 37) AS VARCHAR(2) CCSID 1208) AS UNMSR, s.LQNTY, CAST(CAST(s.LLOCN AS CHAR(7) CCSID 37) AS VARCHAR(7) CCSID 1208) AS LLOCN, i.MULQ
             FROM INTE3FIC.ITMCOC coc
             JOIN AMFLIB3.ITMRVA rva ON rva.ITNBR = coc.ITNBR
             JOIN AMFLIB3.SLQNTY s ON s.ITNBR = rva.ITNBR
             FULL JOIN AMFLIB3.ITMPLN i ON i.itnb = rva.ITNBR
             WHERE coc.STID = '02' AND coc.ITNBR = '${ref}' AND s.LQNTY > 0
-            AND (s.llocn LIKE 'A%'  OR s.LLOCN  LIKE 'H%')  AND s.LLOCN != 'APDPL1'  AND s.LLOCN  != 'APDMR1' 
+            AND (s.llocn LIKE 'A%'  OR s.LLOCN  LIKE 'H%')  AND s.LLOCN != 'APDPL1'  AND s.LLOCN  != 'APDMR1'
             LIMIT 1
         `;
 
@@ -65,11 +65,11 @@ async function getProductByRef(req, res) {
         // sous forme de Buffer ou d'objet — on les convertit en types primitifs
         const mapped = result.map(row => ({
             ITNBR:  row.ITNBR?.trim(),
-            ITDSC:  decodeEBCDIC(row.ITDSC),
-            UST305: decodeEBCDIC(row.UST305),
-            UNMSR:  decodeEBCDIC(row.UNMSR),
+            ITDSC:  row.ITDSC?.trim(),
+            UST305: row.UST305?.trim(),
+            UNMSR:  row.UNMSR?.trim(),
             LQNTY:  row.LQNTY,
-            LLOCN:  decodeEBCDIC(row.LLOCN),
+            LLOCN:  row.LLOCN?.trim(),
             MULQ:   row.MULQ,
         }));
         console.log(mapped);
@@ -103,7 +103,7 @@ async function getStocksByRef(req, res) {
 
         const query = `
             SELECT LLOCN, LQNTY, MULQ  FROM(
-                SELECT LQNTY, LLOCN,  MULQ,
+                SELECT LQNTY, CAST(CAST(s.LLOCN AS CHAR(7) CCSID 37) AS VARCHAR(7) CCSID 1208) AS LLOCN, MULQ,
                 ROW_NUMBER() OVER (PARTITION BY s.LLOCN ORDER BY s.LQNTY) AS rn
                 FROM AMFLIB3.SLQNTY s
                 INNER JOIN AMFLIB3.ITMPLN i ON i.itnb = s.ITNBR
@@ -113,10 +113,9 @@ async function getStocksByRef(req, res) {
             )t
             WHERE t.rn =1
         `;
-
         const result = await pool.query(query);
         const mapped = result.map(row => ({
-            LLOCN: decodeEBCDIC(row.LLOCN),
+            LLOCN: row.LLOCN?.trim(),
             LQNTY: row.LQNTY,
             MULQ: row.MULQ,
         }));
@@ -136,13 +135,12 @@ async function getUnitesGestion(req, res) {
         }
 
         const query = `
-            SELECT DISTINCT UNMSR FROM AMFLIB3.ITMRVA WHERE UNMSR IS NOT NULL
-            
+            SELECT DISTINCT CAST(CAST(UNMSR AS CHAR(2) CCSID 37) AS VARCHAR(2) CCSID 1208) AS UNMSR FROM AMFLIB3.ITMRVA WHERE UNMSR IS NOT NULL
         `;
 
         const result = await pool.query(query);
         const mapped = result.map(row => ({
-            nom: typeof row.UNMSR === 'object' ? decodeEBCDIC(row.UNMSR) : row.UNMSR?.toString().trim(),
+            nom: row.UNMSR?.trim(),
         }));
 
         return res.status(200).json({ success: true, data: mapped });
