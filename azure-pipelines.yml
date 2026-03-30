@@ -61,6 +61,7 @@ stages:
                 - script: |
                     cd $(DEPLOY_PATH)
                     git -c http.extraHeader="Authorization: Basic $(GIT_PAT_B64)" pull origin main
+                    pm2 stop storekeeper-api
                     npm ci --omit=dev
                     pm2 restart storekeeper-api || pm2 start app.js --name storekeeper-api
                     echo "Déploiement terminé"
