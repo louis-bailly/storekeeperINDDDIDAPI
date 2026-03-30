@@ -70,9 +70,13 @@ stages:
                   displayName: 'Deploy — git sync + npm install'
 
                 - powershell: |
-                    Write-Host "===== SERVICE RESTART ====="
-                    sc.exe stop "StoreKeeper API"
-                    Start-Sleep -Seconds 3
-                    sc.exe start "StoreKeeper API"
+                    $env:PM2_HOME = "C:\ProgramData\pm2"
+                    Write-Host "===== PM2 ====="
+                    Set-Location "$(DEPLOY_PATH)"
+                    & "C:\Program Files\nodejs\pm2.cmd" delete storekeeper-api
+                    Write-Host "delete exit: $LASTEXITCODE (ignored)"
+                    & "C:\Program Files\nodejs\pm2.cmd" start app.js --name storekeeper-api
+                    if ($LASTEXITCODE -ne 0) { exit 1 }
+                    & "C:\Program Files\nodejs\pm2.cmd" save
                     Write-Host "===== DEPLOY DONE ====="
-                  displayName: 'Deploy — service restart'
+                  displayName: 'Deploy — pm2 restart'
