@@ -72,12 +72,13 @@ stages:
 
                 - script: |
                     echo ===== PM2 =====
-                    echo DEPLOY_PATH=$(DEPLOY_PATH)
-                    echo PM2_HOME=%PM2_HOME%
                     cd $(DEPLOY_PATH)
-                    echo cd OK
-                    "C:\Program Files\nodejs\pm2.cmd" describe storekeeper-api
-                    echo describe exit code: %ERRORLEVEL%
+                    "C:\Program Files\nodejs\pm2.cmd" describe storekeeper-api >nul 2>&1
+                    IF %ERRORLEVEL% EQU 0 (
+                      "C:\Program Files\nodejs\pm2.cmd" reload storekeeper-api
+                    ) ELSE (
+                      "C:\Program Files\nodejs\pm2.cmd" start app.js --name storekeeper-api
+                    )
+                    "C:\Program Files\nodejs\pm2.cmd" save
                     echo ===== DEPLOY DONE =====
                   displayName: 'Deploy — pm2 reload'
-                  continueOnError: true
