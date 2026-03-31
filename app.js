@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const { initDB } = require('./db/connection');
 require('dotenv').config();
 
@@ -30,6 +31,9 @@ app.get('/', (req, res) => {
         }
     });
 });
+
+// Téléchargement APK mobile (auto-update)
+app.use('/apk', express.static(path.join(__dirname, 'apk')));
 
 app.use('/oauth', loginRoutes);
 app.use('/api/v1/auth', loginRoutes);
