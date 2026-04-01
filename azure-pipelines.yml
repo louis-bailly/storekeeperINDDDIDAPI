@@ -71,12 +71,10 @@ stages:
 
                 - powershell: |
                     $env:PM2_HOME = "C:\ProgramData\pm2"
-                    Write-Host "===== KILL EXISTING NODE/PM2 ====="
-                    cmd /c "taskkill /F /IM node.exe /T >nul 2>&1"
-                    $LASTEXITCODE = 0
-                    Start-Sleep -Seconds 2
                     Write-Host "===== PM2 ====="
                     Set-Location "$(DEPLOY_PATH)"
+                    & "C:\Program Files\nodejs\pm2.cmd" delete storekeeper-api
+                    Write-Host "delete exit: $LASTEXITCODE (ignored)"
                     & "C:\Program Files\nodejs\pm2.cmd" start app.js --name storekeeper-api
                     if ($LASTEXITCODE -ne 0) { exit 1 }
                     & "C:\Program Files\nodejs\pm2.cmd" save
