@@ -71,10 +71,13 @@ stages:
 
                 - powershell: |
                     $env:PM2_HOME = "C:\ProgramData\pm2"
+                    Write-Host "===== KILL EXISTING NODE/PM2 ====="
+                    Get-Process -Name "node" -ErrorAction SilentlyContinue | Stop-Process -Force
+                    Start-Sleep -Seconds 2
+                    $rpcSock = "\\.\pipe\rpc.sock"
+                    if (Test-Path $rpcSock) { Remove-Item $rpcSock -Force -ErrorAction SilentlyContinue }
                     Write-Host "===== PM2 ====="
                     Set-Location "$(DEPLOY_PATH)"
-                    & "C:\Program Files\nodejs\pm2.cmd" kill
-                    Write-Host "kill exit: $LASTEXITCODE (ignored)"
                     & "C:\Program Files\nodejs\pm2.cmd" start app.js --name storekeeper-api
                     if ($LASTEXITCODE -ne 0) { exit 1 }
                     & "C:\Program Files\nodejs\pm2.cmd" save
