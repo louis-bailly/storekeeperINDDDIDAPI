@@ -72,7 +72,7 @@ stages:
                 - powershell: |
                     $env:PM2_HOME = "C:\ProgramData\pm2"
                     Write-Host "===== KILL EXISTING NODE/PM2 ====="
-                    taskkill /F /IM node.exe /T 2>$null
+                    taskkill /F /IM node.exe /T 2>&1 | Out-Null
                     Start-Sleep -Seconds 2
                     Write-Host "===== PM2 ====="
                     Set-Location "$(DEPLOY_PATH)"
