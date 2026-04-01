@@ -70,13 +70,16 @@ stages:
                   displayName: 'Deploy — git sync + npm install'
 
                 - powershell: |
-                    $env:PM2_HOME = "C:\ProgramData\pm2"
-                    Write-Host "===== PM2 ====="
+                    Write-Host "===== RESTART SERVICE ====="
                     Set-Location "$(DEPLOY_PATH)"
-                    & "C:\Program Files\nodejs\pm2.cmd" delete storekeeper-api
-                    Write-Host "delete exit: $LASTEXITCODE (ignored)"
-                    & "C:\Program Files\nodejs\pm2.cmd" start app.js --name storekeeper-api
-                    if ($LASTEXITCODE -ne 0) { exit 1 }
-                    & "C:\Program Files\nodejs\pm2.cmd" save
+                    .\storekeeper-api.exe restart
+                    Start-Sleep -Seconds 10
+                    $port = netstat -ano | Select-String ":3000.*LISTENING"
+                    if ($port) {
+                      Write-Host "API listening on port 3000"
+                    } else {
+                      Write-Host "ERROR: API not listening"
+                      exit 1
+                    }
                     Write-Host "===== DEPLOY DONE ====="
-                  displayName: 'Deploy — pm2 restart'
+                  displayName: 'Deploy — restart service'
