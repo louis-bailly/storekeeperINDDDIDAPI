@@ -73,8 +73,8 @@ stages:
                     $env:PM2_HOME = "C:\ProgramData\pm2"
                     Write-Host "===== PM2 ====="
                     Set-Location "$(DEPLOY_PATH)"
-                    & "C:\Program Files\nodejs\pm2.cmd" delete storekeeper-api
-                    Write-Host "delete exit: $LASTEXITCODE (ignored)"
+                    & "C:\Program Files\nodejs\pm2.cmd" kill
+                    Write-Host "kill exit: $LASTEXITCODE (ignored)"
                     & "C:\Program Files\nodejs\pm2.cmd" start app.js --name storekeeper-api
                     if ($LASTEXITCODE -ne 0) { exit 1 }
                     & "C:\Program Files\nodejs\pm2.cmd" save
