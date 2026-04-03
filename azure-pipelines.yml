@@ -63,7 +63,7 @@ stages:
                     cd /d "$(DEPLOY_PATH)"
                     git -c http.extraHeader="Authorization: Basic $(GIT_PAT_B64)" fetch origin main
                     git reset --hard origin/main
-                    git clean -fd
+                    git clean -fd --exclude=apk
                     echo ===== INSTALL =====
                     npm install --omit=dev
                     echo ===== INSTALL DONE =====
