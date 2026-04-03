@@ -1,26 +1,3 @@
-const jwt = require('jsonwebtoken');
-const { getPool } = require('../../db/connection');
-const EBCDIC_037 = {
-    0x40: " ",
-    0xc1: "A",0xc2:"B",0xc3:"C",0xc4:"D",0xc5:"E",0xc6:"F",0xc7:"G",0xc8:"H",0xc9:"I",
-    0xd1:"J",0xd2:"K",0xd3:"L",0xd4:"M",0xd5:"N",0xd6:"O",0xd7:"P",0xd8:"Q",0xd9:"R",
-    0xe2:"S",0xe3:"T",0xe4:"U",0xe5:"V",0xe6:"W",0xe7:"X",0xe8:"Y",0xe9:"Z",
-    0xf0:"0",0xf1:"1",0xf2:"2",0xf3:"3",0xf4:"4",0xf5:"5",0xf6:"6",0xf7:"7",0xf8:"8",0xf9:"9",
-    0x60:"-",0x6b:".",0x61:"/",0x7a:"#"
-};
-
-function decodeEBCDIC(buffer) {
-    if (buffer == null) return '';
-    const bytes = new Uint8Array(buffer);
-    let out = "";
-
-    for (const b of bytes) {
-        out += EBCDIC_037[b] ?? "";
-    }
-
-    return out.trim();
-}
-
 async function getProductByRef(req, res) {
     try{
         // Récupérer le pool de connexion DB2
@@ -45,7 +22,6 @@ async function getProductByRef(req, res) {
             });
         }
 
-        const whereAtelier = atelier ? `AND s.LLOCN = '${atelier}'` : '';
         const query = `
             SELECT coc.ITNBR, CAST(CAST(rva.ITDSC AS CHAR(30) CCSID 37) AS VARCHAR(30) CCSID 1208) AS ITDSC, coc.UST305, CAST(CAST(rva.UNMSR AS CHAR(2) CCSID 37) AS VARCHAR(2) CCSID 1208) AS UNMSR, s.LQNTY, CAST(CAST(s.LLOCN AS CHAR(7) CCSID 37) AS VARCHAR(7) CCSID 1208) AS LLOCN, i.MULQ
             FROM INTE3FIC.ITMCOC coc

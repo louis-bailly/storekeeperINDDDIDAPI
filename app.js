@@ -11,8 +11,6 @@ const port = process.env.PORT || 3000;
 app.use(cors()); // Permettre les requêtes cross-origin
 app.use(express.json()); // Parser les requêtes JSON
 
-// Pool de connexions (recommandé)
-
 // Routes
 const loginRoutes = require('./routes/Login/LoginRoute');
 const exampleRoutes = require('./routes/ExampleRoute');
